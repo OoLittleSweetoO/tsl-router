@@ -1,0 +1,21 @@
+services:
+  tsl-router:
+    build: .
+    image: tsl-router:local
+    container_name: tsl-router
+    network_mode: host
+    restart: always
+    read_only: true
+    cap_drop: [ALL]
+    cap_add: [NET_RAW, NET_BIND_SERVICE]
+    security_opt: [no-new-privileges:true]
+    volumes:
+      - ./data:/data
+      - /run/tsl-network:/run/tsl-network:ro
+    tmpfs:
+      - /tmp:size=16m
+    logging:
+      driver: json-file
+      options:
+        max-size: 5m
+        max-file: '2'

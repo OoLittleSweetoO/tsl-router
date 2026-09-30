@@ -1,0 +1,5 @@
+# Update an already-installed TSL Router without registry access.
+FROM tsl-router:local
+WORKDIR /app
+COPY app.py protocol.py ./
+COPY static ./static

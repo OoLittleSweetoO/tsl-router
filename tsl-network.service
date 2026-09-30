@@ -1,0 +1,22 @@
+[Unit]
+Description=TSL Router NetworkManager configuration helper
+After=NetworkManager.service
+Requires=NetworkManager.service
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/python3 /usr/local/lib/tsl-router/network_helper.py
+Restart=always
+RestartSec=3
+RuntimeDirectory=tsl-network
+RuntimeDirectoryMode=0755
+StateDirectory=tsl-network
+StateDirectoryMode=0700
+UMask=0077
+NoNewPrivileges=yes
+ProtectSystem=strict
+ProtectHome=yes
+PrivateTmp=yes
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,2 @@
+# Switch only Realtek 0bda:8151 virtual-CD devices; target the arriving USB device.
+ACTION=="add", SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb_device", ATTR{idVendor}=="0bda", ATTR{idProduct}=="8151", RUN+="/usr/sbin/usb_modeswitch -c /etc/usb_modeswitch.d/0bda:8151 -b $env{BUSNUM} -g $env{DEVNUM}"

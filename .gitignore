@@ -1,0 +1,12 @@
+__pycache__/
+data/
+*.tar.gz
+*.tar
+*.tgz
+*.pyc
+.DS_Store
+.env
+.env.*
+!.env.example
+*.pem
+*.key
