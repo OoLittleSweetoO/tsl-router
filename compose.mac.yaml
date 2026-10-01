@@ -1,0 +1,32 @@
+name: tsl-ember-mac
+services:
+  tsl-router:
+    build:
+      context: .
+      dockerfile: Dockerfile.mac
+    image: tsl-router:ember-mac
+    container_name: tsl-ember-mac
+    init: true
+    restart: unless-stopped
+    ports:
+      - "8080:8080/tcp"
+      - "50080:50080/udp"
+      - "${EMBER_BIND_IP:-0.0.0.0}:${EMBER_PORT:-9000}:9000/tcp"
+    environment:
+      TSL_LISTEN_PORT: "50080"
+      TSL_OUTPUT_IP: "0.0.0.0"
+      TSL_OUTPUT_INTERFACE: ""
+      EMBER_PUBLIC_IP: "${EMBER_BIND_IP:-0.0.0.0}"
+      EMBER_PUBLIC_PORT: "${EMBER_PORT:-9000}"
+    volumes:
+      - ./data-mac:/data
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    tmpfs:
+      - /tmp:size=16m
+    logging:
+      driver: json-file
+      options:
+        max-size: 5m
+        max-file: '2'

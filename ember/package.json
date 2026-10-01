@@ -1,0 +1,11 @@
+{
+  "name": "tsl-ember-provider",
+  "version": "1.0.0",
+  "private": true,
+  "dependencies": {
+    "node-emberplus": "2.5.12"
+  },
+  "devDependencies": {
+    "emberplus-connection": "0.3.1"
+  }
+}

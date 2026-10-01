@@ -1,0 +1,30 @@
+name: sdlx-tallyman
+services:
+  tsl-router:
+    build:
+      context: .
+      dockerfile: Dockerfile.debian
+    image: tsl-router:ember-debian
+    container_name: sdlx-tallyman
+    init: true
+    network_mode: host
+    restart: unless-stopped
+    environment:
+      TSL_LISTEN_PORT: "50080"
+      TSL_OUTPUT_IP: "0.0.0.0"
+      TSL_OUTPUT_INTERFACE: ""
+      EMBER_PUBLIC_IP: "${EMBER_BIND_IP:-0.0.0.0}"
+      EMBER_PUBLIC_PORT: "${EMBER_PORT:-9000}"
+    volumes:
+      - ./data-debian:/data
+    read_only: true
+    cap_drop: [ALL]
+    cap_add: [NET_RAW, NET_BIND_SERVICE]
+    security_opt: [no-new-privileges:true]
+    tmpfs:
+      - /tmp:size=16m
+    logging:
+      driver: json-file
+      options:
+        max-size: 5m
+        max-file: '2'

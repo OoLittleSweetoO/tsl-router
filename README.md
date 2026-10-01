@@ -60,3 +60,6 @@ sudo systemctl enable --now tsl-network.service
 python3 -m unittest discover -s tests -v
 node --check static/app.js
 ```
+## Mac 本地 Ember+ 测试部署
+
+TSL 输入转只读 Ember+ Provider，供 Lawo VSM 读取。使用独立的 `compose.mac.yaml`，不修改上述树莓派部署。详见 [EMBER_MAC.md](EMBER_MAC.md)。

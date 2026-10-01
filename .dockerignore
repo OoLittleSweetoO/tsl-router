@@ -3,3 +3,7 @@ __pycache__
 data
 tests
 *.tar.gz
+node_modules
+data-mac
+data-debian
+release

@@ -3,6 +3,7 @@ import http.client
 import ipaddress
 import json
 import os
+import urllib.request
 from pathlib import Path
 import socket
 import shutil
@@ -15,7 +16,9 @@ from urllib.parse import urlsplit
 from protocol import decode, encode
 
 ROOT = Path(__file__).parent
-DEFAULT = dict(listen_port=40003, listen_interface='', output_ip='192.168.10.2', output_interface='eth0',
+DEFAULT = dict(listen_port=int(os.environ.get('TSL_LISTEN_PORT', '40003')), listen_interface='',
+               output_ip=os.environ.get('TSL_OUTPUT_IP', '192.168.10.2'),
+               output_interface=os.environ.get('TSL_OUTPUT_INTERFACE', 'eth0'),
                forwarding=True, stale_seconds=5, rules=[])
 
 
@@ -49,6 +52,14 @@ def map_lamps(rule, item):
 
 def validate(config):
     c = copy.deepcopy(config)
+    c.setdefault('ember', dict(enabled=False, source_ip='*', screen=0, count=11))
+    e = c['ember']
+    if not isinstance(e, dict) or type(e.get('enabled')) is not bool:
+        raise ValueError('Ember+ 设置无效 / Invalid Ember+ settings')
+    if e.get('source_ip') != '*':
+        e['source_ip'] = ipv4(e.get('source_ip'))
+    integer(e.get('screen'), 0, 65534)
+    integer(e.get('count'), 1, 256)
     c.setdefault('listen_interface', '')
     if not isinstance(c['listen_interface'], str) or len(c['listen_interface']) > 15:
         raise ValueError('接收网口名称无效 / Invalid input interface')
@@ -247,8 +258,13 @@ class Router:
         self.sender.sendto(encode(out), destination)
         self.tx += 1
         self.output_error = ''
-        self.outputs[rule['key']] = dict(item=out, time=time.time(), mode=mode,
-                                        input_time=item.get('seen', time.time()))
+        now = time.time()
+        previous = self.outputs.get(rule['key'])
+        input_time = item.get('seen')
+        if input_time is None and mode == 'auto' and previous:
+            input_time = previous['input_time']
+        self.outputs[rule['key']] = dict(item=out, time=now, mode=mode,
+                                        input_time=input_time if input_time is not None else now)
 
     def safe_transmit(self, rule, item, mode):
         try:
@@ -423,6 +439,12 @@ class Handler(BaseHTTPRequestHandler):
             self.reply(self.server.router.snapshot())
         elif path == '/health':
             self.reply(dict(ok=True))
+        elif path == '/api/ember':
+            try:
+                with urllib.request.urlopen('http://127.0.0.1:9091/status', timeout=1) as response:
+                    self.reply(json.load(response))
+            except (OSError, ValueError) as exc:
+                self.reply(dict(available=False, error='Ember+ 服务未运行 / Provider not running'))
         elif path in ('/api/network/interfaces', '/api/network/status'):
             try:
                 self.reply(network_request('/'+path.rsplit('/', 1)[1]))
